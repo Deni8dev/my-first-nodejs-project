@@ -1,15 +1,17 @@
 const express = require('express');
 const fs = require('fs');
 const {of} = require('rxjs');
+const PropertiesReader = require('properties-reader');
+const properties = PropertiesReader('./configuration.properties');
 
 const router = express.Router();
 
 /* GET users listing. */
-router.get('/', function (req, res, next) {
+router.get('/', (req, res, next) => {
     of(true)
         .subscribe(() =>
             res.status(200).json({
-                users: JSON.parse(fs.readFileSync('/home/dac/DMS/db.json', 'utf8'))
+                users: JSON.parse(fs.readFileSync(properties.get("db.path"), 'utf8'))
             })
         , error =>
             res.status(500).json({

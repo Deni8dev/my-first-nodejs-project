@@ -1,0 +1,128 @@
+pipeline {
+  agent { label 'cyxtera-portal-vagrant' }
+  environment {
+    IMAGE_NAME = ""
+  }
+  stages {
+
+    stage('Build') {
+      steps {
+        notifySlack()
+        echo "Cleaning"
+        //ToDo: rcalderon:Remove this
+        sh "docker system prune -af"
+
+        echo "Installing dependencies"
+        sh "npm install"
+      }
+    }
+
+    stage('Unit Test') {
+      steps {
+        echo "Running unit tests"
+        sh "npm test"
+        junit 'reports/junit/*.xml'
+      }
+    }
+
+    stage('Code Analysis') {
+      steps {
+        echo "Running static code analysis"
+      }
+    }
+
+    stage('Artifacts Build') {
+      steps {
+        echo "Building artifacts"
+        script {
+          docker.withRegistry("https://registry-prod.easysol.net", 'uportal_portus_production') {
+            def image = docker.build("cyxtera_portal/portal-fe:${env.BUILD_NUMBER}", "-f ops/Dockerfile .")
+            image.push()
+          }
+        }
+        sh "docker rmi cyxtera_portal/portal-fe:${env.BUILD_NUMBER}"
+      }
+    }
+
+    stage('Acceptance Test') {
+      steps {
+        echo "Running acceptance tests"
+        sh "npm run e2e"
+      }
+    }
+
+
+    stage('Set Acceptance Env') {
+      steps {
+        script{
+          IMAGE_NAME = "cyxtera_portal\\/portal-fe:${env.BUILD_NUMBER}"
+          //IMAGE_NAME = IMAGE_NAME.replace("/", "\\/")
+        }
+        sh "sed -i 's/IMAGE_NAME/${IMAGE_NAME}/g' ci/acceptance/main.tf"
+        init_environment()
+        //sleep 180
+        //destroy_environment()
+      }
+    }
+
+  }
+
+  post {
+    // only triggered when blue or green sign
+    success {
+      echo "Sending slack notification because of build success"
+      notifySlack('SUCCESS')
+    }
+    // triggered when red sign
+    failure {
+      echo "Sending slack notification because of build failure"
+      notifySlack('FAILURE')
+    }
+    unstable {
+      echo "Sending slack notification because of unstable build"
+      notifySlack('UNSTABLE')
+    }
+  }
+}
+
+def notifySlack(String buildStatus = 'STARTED') {
+  // Build status of null means success.
+  buildStatus = buildStatus ?: 'SUCCESS'
+
+  def color
+
+  if (buildStatus == 'STARTED') {
+    color = '#D4DADF'
+  } else if (buildStatus == 'SUCCESS') {
+    color = '#BDFFC3'
+  } else if (buildStatus == 'UNSTABLE') {
+    color = '#FFFE89'
+  } else {
+    color = '#FF9FA1'
+  }
+
+  def msg = "${buildStatus}: ${env.JOB_NAME} #${env.BUILD_NUMBER}:\n${env.BUILD_URL}"
+  def baseUrl = "https://portalrangers.slack.com/services/hooks/jenkins-ci/"
+  def channel = "continuous-delivery"
+  def token = "Cyxtera-Portal"
+
+  slackSend(baseUrl: baseUrl, channel: channel, color: color, message: msg, tokenCredentialId: token)
+}
+
+def init_environment() {
+  dir("ci/acceptance") {
+    sh "rm -rf plan.out"
+    sh "date"
+    sh "terraform init"
+    sh "set +e; terraform plan -out=plan.out "
+    sh "terraform apply plan.out"
+  }
+}
+
+def destroy_environment() {
+  dir("ci/acceptance") {
+    sh 'terraform destroy -auto-approve  -target aws_instance.acceptance_portal  -target rancher_stack.appx  -target rancher_registration_token.acceptance-token -target rancher_host.acceptance_rancher_host'
+  }
+}
+
+

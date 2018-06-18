@@ -2,11 +2,12 @@ const express = require('express');
 const fs = require('fs');
 const {of} = require('rxjs');
 const PropertiesReader = require('properties-reader');
+const properties = PropertiesReader('./configuration.properties');
 
 const router = express.Router();
 
-/* GET users listing. */
-router.get('/:username/:password', function (req, res, next) {
+/* GET login user listening. */
+router.get('/:username/:password', (req, res, next) => {
     of(findUser(req.params.username, req.params.password))
         .subscribe(exist => {
             if (exist)
@@ -27,7 +28,6 @@ router.get('/:username/:password', function (req, res, next) {
 });
 
 function findUser(username, password) {
-    const properties = PropertiesReader('./configuration.properties');
     return JSON.parse(fs.readFileSync(properties.get("db.path"), 'utf8')).map(dbUser =>
         username === dbUser.username && password === dbUser.password
     ).find(exist => exist);
