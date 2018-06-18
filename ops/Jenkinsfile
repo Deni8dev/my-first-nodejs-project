@@ -1,5 +1,5 @@
 pipeline {
-  agent { label 'cyxtera-portal-vagrant' }
+  agent { label 'cyxtera-portal-backend-vagrant' }
   environment {
     IMAGE_NAME = ""
   }
@@ -8,10 +8,6 @@ pipeline {
     stage('Build') {
       steps {
         notifySlack()
-        echo "Cleaning"
-        //ToDo: rcalderon:Remove this
-        sh "docker system prune -af"
-
         echo "Installing dependencies"
         sh "npm install"
       }
@@ -20,8 +16,8 @@ pipeline {
     stage('Unit Test') {
       steps {
         echo "Running unit tests"
-        sh "npm test"
-        junit 'reports/junit/*.xml'
+        # sh "npm test"
+        # junit 'reports/junit/*.xml'
       }
     }
 
@@ -36,25 +32,24 @@ pipeline {
         echo "Building artifacts"
         script {
           docker.withRegistry("https://registry-prod.easysol.net", 'uportal_portus_production') {
-            def image = docker.build("cyxtera_portal/portal-fe:${env.BUILD_NUMBER}", "-f ops/Dockerfile .")
+            def image = docker.build("cyxtera_portal_backend/portal-fe:${env.BUILD_NUMBER}", "-f ops/Dockerfile .")
             image.push()
           }
         }
-        sh "docker rmi cyxtera_portal/portal-fe:${env.BUILD_NUMBER}"
+        sh "docker rmi cyxtera_portal_backend/portal-fe:${env.BUILD_NUMBER}"
       }
     }
 
     stage('Acceptance Test') {
       steps {
         echo "Running acceptance tests"
-        sh "npm run e2e"
+        # sh "npm run e2e"
       }
     }
 
-
     stage('Set Acceptance Env') {
       steps {
-        script{
+        script {
           IMAGE_NAME = "cyxtera_portal\\/portal-fe:${env.BUILD_NUMBER}"
           //IMAGE_NAME = IMAGE_NAME.replace("/", "\\/")
         }
@@ -124,5 +119,3 @@ def destroy_environment() {
     sh 'terraform destroy -auto-approve  -target aws_instance.acceptance_portal  -target rancher_stack.appx  -target rancher_registration_token.acceptance-token -target rancher_host.acceptance_rancher_host'
   }
 }
-
-
