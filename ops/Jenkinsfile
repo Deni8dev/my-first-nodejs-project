@@ -1,5 +1,5 @@
 pipeline {
-  agent { label 'cyxtera-portal-vagrant' }
+  agent { label 'cyxtera-portal-backend' }
   environment {
     IMAGE_NAME = ""
   }
