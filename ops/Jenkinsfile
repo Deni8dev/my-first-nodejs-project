@@ -21,14 +21,14 @@ pipeline {
         echo "Running unit tests"
         // sh "npm test"
         // junit 'reports/junit/*.xml'
-        sleep(210)
+        sleep(10)
       }
     }
 
     stage('Code Analysis') {
       steps {
         echo "Running static code analysis"
-        sleep(220)
+        sleep(10)
       }
     }
 
@@ -55,7 +55,7 @@ pipeline {
     stage('Acceptance Test') {
       steps {
         echo "Running acceptance tests"
-        sleep(300)
+        sleep(10)
       }
     }
 
