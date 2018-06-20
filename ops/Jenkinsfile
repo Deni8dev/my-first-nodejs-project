@@ -39,6 +39,18 @@ pipeline {
         sh "docker rmi cyxtera_portal/portal-be:${env.BUILD_NUMBER}"
       }
     }
+
+    stage('Acceptance Test') {
+      steps {
+        echo "Running acceptance tests"
+      }
+    }
+
+    stage('Set Acceptance Env') {
+      steps {
+        echo "Setting Environment"
+      }
+    }
   }
 
   post {
