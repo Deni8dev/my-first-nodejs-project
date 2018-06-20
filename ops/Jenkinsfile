@@ -37,11 +37,11 @@ pipeline {
         echo "Building artifacts"
         script {
           docker.withRegistry("https://registry-prod.easysol.net", 'uportal_portus_production') {
-            def image = docker.build("cyxtera_portal/portal-be:test", "-f ops/Dockerfile .")
+            def image = docker.build("cyxtera_portal/portal-be:latest", "-f ops/Dockerfile .")
             image.push()
           }
         }
-        sh "docker rmi cyxtera_portal/portal-be:test"
+        sh "docker rmi cyxtera_portal/portal-be:latest"
       }
     }
 
