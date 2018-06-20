@@ -1,8 +1,11 @@
 pipeline {
+
   agent { label 'cyxtera-portal-backend' }
+
   environment {
     IMAGE_NAME = ""
   }
+
   stages {
 
     stage('Build') {
@@ -18,12 +21,14 @@ pipeline {
         echo "Running unit tests"
         // sh "npm test"
         // junit 'reports/junit/*.xml'
+        sleep(210)
       }
     }
 
     stage('Code Analysis') {
       steps {
         echo "Running static code analysis"
+        sleep(220)
       }
     }
 
@@ -40,17 +45,27 @@ pipeline {
       }
     }
 
-    stage('Acceptance Test') {
+    stage('Invoke Integration Job') {
       steps {
-        echo "Running acceptance tests"
+        echo "Building devops job"
+        build job: 'cyxtera-back-and-front-ent-integration/master'
       }
     }
 
-    stage('Set Acceptance Env') {
+    stage('Acceptance Test') {
       steps {
-        echo "Setting Environment"
+        echo "Running acceptance tests"
+        sleep(300)
       }
     }
+
+    stage('Destroy environment') {
+      steps {
+        sleep(250)
+        destroy_environment()
+      }
+    }
+
   }
 
   post {
@@ -93,4 +108,10 @@ def notifySlack(String buildStatus = 'STARTED') {
   def token = "Cyxtera-Portal"
 
   slackSend(baseUrl: baseUrl, channel: channel, color: color, message: msg, tokenCredentialId: token)
+}
+
+def destroy_environment() {
+  dir("ci/acceptance") {
+    sh 'terraform destroy -auto-approve  -target aws_instance.acceptance_portal  -target rancher_stack.appx  -target rancher_registration_token.acceptance-token -target rancher_host.acceptance_rancher_host'
+  }
 }
