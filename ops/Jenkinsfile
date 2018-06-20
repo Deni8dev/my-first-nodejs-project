@@ -48,8 +48,7 @@ pipeline {
     stage('Invoke Integration Job') {
       steps {
         echo "Building devops job"
-        build job: 'cyxtera-back-and-front-ent-integration/master', [
-        ]
+        build job: 'cyxtera-back-and-front-ent-integration/master'
       }
     }
 
