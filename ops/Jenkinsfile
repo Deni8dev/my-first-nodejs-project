@@ -1,5 +1,5 @@
 pipeline {
-  agent { label 'cyxtera-portal-backend-vagrant' }
+  agent { label 'cyxtera-portal-backend' }
   environment {
     IMAGE_NAME = ""
   }
@@ -39,27 +39,6 @@ pipeline {
         sh "docker rmi cyxtera_portal_backend/portal-fe:${env.BUILD_NUMBER}"
       }
     }
-
-    stage('Acceptance Test') {
-      steps {
-        echo "Running acceptance tests"
-        # sh "npm run e2e"
-      }
-    }
-
-    stage('Set Acceptance Env') {
-      steps {
-        script {
-          IMAGE_NAME = "cyxtera_portal\\/portal-fe:${env.BUILD_NUMBER}"
-          //IMAGE_NAME = IMAGE_NAME.replace("/", "\\/")
-        }
-        sh "sed -i 's/IMAGE_NAME/${IMAGE_NAME}/g' ci/acceptance/main.tf"
-        init_environment()
-        //sleep 180
-        //destroy_environment()
-      }
-    }
-
   }
 
   post {
@@ -102,20 +81,4 @@ def notifySlack(String buildStatus = 'STARTED') {
   def token = "Cyxtera-Portal"
 
   slackSend(baseUrl: baseUrl, channel: channel, color: color, message: msg, tokenCredentialId: token)
-}
-
-def init_environment() {
-  dir("ci/acceptance") {
-    sh "rm -rf plan.out"
-    sh "date"
-    sh "terraform init"
-    sh "set +e; terraform plan -out=plan.out "
-    sh "terraform apply plan.out"
-  }
-}
-
-def destroy_environment() {
-  dir("ci/acceptance") {
-    sh 'terraform destroy -auto-approve  -target aws_instance.acceptance_portal  -target rancher_stack.appx  -target rancher_registration_token.acceptance-token -target rancher_host.acceptance_rancher_host'
-  }
 }
