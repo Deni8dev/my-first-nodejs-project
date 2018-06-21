@@ -12,7 +12,23 @@
     "password": "admin"
   },
   {
+    "username": "admin",
+    "password": "xxx"
+  },
+  {
     "username": "qa_portal@cyxtera.com",
     "password": "admin"
+  },
+  {
+    "username": "qa_portal@cyxtera.com",
+    "password": "xxx"
+  },
+  {
+    "username": "rvillaediego@easysol.net.dmstest",
+    "password": "3asyso1"
+  },
+  {
+    "username": "rvillaediego@easysol.net.dmstest",
+    "password": "3asyso1"
   }
 ]
