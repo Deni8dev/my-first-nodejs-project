@@ -103,9 +103,9 @@ def notifySlack(String buildStatus = 'STARTED') {
   }
 
   def msg = "${buildStatus}: ${env.JOB_NAME} #${env.BUILD_NUMBER}:\n${env.BUILD_URL}"
-  def baseUrl = "https://portalrangers.slack.com/services/hooks/jenkins-ci/"
-  def channel = "continuous-delivery"
-  def token = "Cyxtera-Portal"
+  def baseUrl = "https://cyx-tma.slack.com/services/hooks/jenkins-ci/"
+  def channel = "portal-ci-backend"
+  def token = "Cyx-TMA-Token"
 
   slackSend(baseUrl: baseUrl, channel: channel, color: color, message: msg, tokenCredentialId: token)
 }
