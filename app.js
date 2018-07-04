@@ -29,18 +29,18 @@ app.use('/api/v1/users', usersRouter);
 app.use('/api/v1/login', loginRouter);
 
 // Allow Access Control
-// app.use((req, res, next) => {
-//     res.header("Access-Control-Allow-Origin", "*");
-//     res.header(
-//         "Access-Control-Allow-Headers",
-//         "Origin, X-Request-With, Content-Type, Accept, Authorization"
-//     );
-//     if (req.method === 'OPTIONS') {
-//         res.header('Access-Control-Allow-Method', 'PUT, POST, PATCH, DELETE');
-//         return res.status(200).json({});
-//     }
-//     next();
-// });
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header(
+        "Access-Control-Allow-Headers",
+        "Origin, X-Request-With, Content-Type, Accept, Authorization"
+    );
+    if (req.method === 'OPTIONS') {
+        res.header('Access-Control-Allow-Method', 'PUT, POST, PATCH, DELETE');
+        return res.status(200).json({});
+    }
+    next();
+});
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

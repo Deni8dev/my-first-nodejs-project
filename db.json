@@ -1,18 +1,18 @@
 [
   {
-    "username": "danachury@easysol.net",
-    "password": "admin"
-  },
-  {
     "username": "admin",
     "password": "admin"
   },
   {
-    "username": "denilson.anachury@cyxtera.com",
-    "password": "admin"
+    "username": "user1",
+    "password": "user1"
   },
   {
-    "username": "qa_portal@cyxtera.com",
-    "password": "admin"
+    "username": "user2",
+    "password": "user2"
+  },
+  {
+    "username": "user3",
+    "password": "user3"
   }
 ]
