@@ -11,6 +11,7 @@
 .settings/
 xcuserdata/
 *.sublime-workspace
+.vscode/
 
 # Dependencies sources
 node_modules/
