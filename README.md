@@ -3,9 +3,17 @@
 This project was generate with pure NodeJs code
 
 # Getting started
-
+<!-- 
 1. Go to project folder and install dependencies:
- ``` sh npm install ```
+ ``` npm install ```
 
-2. Launch development server, and open `localhost:3000` in your browser, or use and Test Tool like `Postman`:
- ``` sh npm start ```
+2. Launch development server, and open `localhost:3000` in your browser, or use and test tool like `Postman`:
+ ``` npm start ``` -->
+```sh
+ npm install
+ ```
+
+2. Launch development server, and open `localhost:4200` in your browser:
+ ```sh
+ npm start
+ ```
