@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const User = require('../models/User');
 const router = express.Router();
 
-/* POST users listing. */
+/* POST users listening. */
 router.post('/', (req, res, next) => {
     const user = new User({
         _id: new mongoose.Types.ObjectId(),
@@ -12,39 +12,37 @@ router.post('/', (req, res, next) => {
         password: req.body.password
     });
     user.save()
-        .then(result => {
+        .then(result =>
             res.status(201).json({
                 message: 'User was created'
-            });
-            console.log(result)
-        })
-        .catch(err => {
-            console.log(err);
+            })
+        )
+        .catch(err =>
             res.status(500).json({
                 message: 'Ups... We have problems',
                 details: err
             })
-        });
+        );
 });
 
-/* GET users listing. */
+/* GET All users listening. */
 router.get('/', (req, res, next) => {
     User.find()
         .exec()
-        .then(docs => {
+        .then(docs =>
             res.status(200).json({
                 users: docs
-            });
-        })
-        .catch(err => {
+            })
+        )
+        .catch(err =>
             res.status(500).json({
                 message: 'Ups... We have problems',
-                details: error
+                details: err
             })
-        });
+        );
 });
 
-/* GET users listing. */
+/* GET users by Id listening. */
 router.get('/:userId', (req, res, next) => {
     User.findById(req.params.userId)
         .exec()
@@ -65,6 +63,42 @@ router.get('/:userId', (req, res, next) => {
                 details: err
             });
         });
+});
+
+/* DELETE user by Id listening. */
+router.delete('/:userId', (req, res, next) => {
+    User.remove({_id: req.params.userId})
+        .exec()
+        .then(result =>
+            res.status(200).json(result)
+        )
+        .catch(err =>
+            res.status(500).json({
+                message: 'Ups... We have problems',
+                details: err
+            })
+        );
+});
+
+/* PATCH user by Id listening. */
+router.patch('/:userId', (req, res, next) => {
+    const updateProps = {};
+    for (const ops of req.body) {
+        updateProps[ops.propName] = ops.value;
+    }
+    User.update(
+        {_id: req.params.userId},
+        {$set: updateProps})
+        .exec()
+        .then(result =>
+            res.status(200).json(result)
+        )
+        .catch(err =>
+            res.status(500).json({
+                message: 'Ups... We have problems',
+                details: err
+            })
+        );
 });
 
 module.exports = router;
