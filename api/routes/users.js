@@ -18,33 +18,31 @@ router.post('/', (req, res, next) => {
             })
         )
         .catch(err =>
-            res.status(500).json({
-                message: 'Ups... We have problems',
-                details: err
-            })
+            res.status(500).json(getInternalError(err))
         );
 });
 
 /* GET All users listening. */
 router.get('/', (req, res, next) => {
     User.find()
+        .select("_id userId username password")
         .exec()
-        .then(docs =>
-            res.status(200).json({
+        .then(docs => {
+            const response = {
+                count: docs.length,
                 users: docs
-            })
-        )
+            };
+            res.status(200).json(response);
+        })
         .catch(err =>
-            res.status(500).json({
-                message: 'Ups... We have problems',
-                details: err
-            })
+            res.status(500).json(getInternalError(err))
         );
 });
 
 /* GET users by Id listening. */
 router.get('/:userId', (req, res, next) => {
     User.findById(req.params.userId)
+        .select("_id userId username password")
         .exec()
         .then(doc => {
             if (doc)
@@ -58,10 +56,7 @@ router.get('/:userId', (req, res, next) => {
         })
         .catch(err => {
             console.log(err);
-            res.status(500).json({
-                message: 'Ups... We have problems',
-                details: err
-            });
+            res.status(500).json(getInternalError(err));
         });
 });
 
@@ -70,13 +65,12 @@ router.delete('/:userId', (req, res, next) => {
     User.remove({_id: req.params.userId})
         .exec()
         .then(result =>
-            res.status(200).json(result)
+            res.status(200).json({
+                message: 'User deleted'
+            })
         )
         .catch(err =>
-            res.status(500).json({
-                message: 'Ups... We have problems',
-                details: err
-            })
+            res.status(500).json(getInternalError(err))
         );
 });
 
@@ -86,19 +80,34 @@ router.patch('/:userId', (req, res, next) => {
     for (const ops of req.body) {
         updateProps[ops.propName] = ops.value;
     }
+    const id = req.params.userId;
     User.update(
-        {_id: req.params.userId},
+        {_id: id},
         {$set: updateProps})
         .exec()
         .then(result =>
-            res.status(200).json(result)
+            res.status(200).json({
+                message: 'User updated',
+                request: getRequestValue('GET', id)
+            })
         )
         .catch(err =>
-            res.status(500).json({
-                message: 'Ups... We have problems',
-                details: err
-            })
+            res.status(500).json(getInternalError(err))
         );
 });
+
+function getInternalError(error) {
+    return {
+        message: 'Ups... We have problems, please try again later',
+        details: error
+    }
+}
+
+function getRequestValue(_type, _url) {
+    return {
+        type: _type,
+        url: 'http://localhost:3000/api/v1/users/' + _url
+    }
+}
 
 module.exports = router;
