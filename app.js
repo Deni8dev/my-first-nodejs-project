@@ -4,9 +4,13 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
-const healthCheck = require('./routes/healthCheck');
-const usersRouter = require('./routes/users');
-const loginRouter = require('./routes/login');
+const PropertiesReader = require('properties-reader');
+const properties = PropertiesReader('./configuration.properties');
+
+const healthCheck = require('./api/routes/healthCheck');
+const usersRouter = require('./api/routes/users');
+
+const mongoose = require('mongoose');
 
 const app = express();
 
@@ -22,7 +26,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/health', healthCheck);
 app.use('/api/v1/users', usersRouter);
-app.use('/api/v1/login', loginRouter);
+
+mongoose.connect(
+    properties.get('db.user') + '://' +
+    properties.get('db.host') + ':' +
+    properties.get('db.port') + '/' +
+    properties.get('db.database'),
+    { useNewUrlParser: true }
+);
 
 // Allow Access Control
 app.use((req, res, next) => {
