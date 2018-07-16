@@ -24,6 +24,7 @@ app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use('/', healthCheck);
 app.use('/health', healthCheck);
 app.use('/api/v1/users', usersRouter);
 
