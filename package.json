@@ -13,7 +13,7 @@
     "mongoose": "^5.10.7",
     "morgan": "^1.9.1",
     "properties-reader": "0.0.16",
-    "pug": "^3.0.0",
+    "pug": "^3.0.1",
     "rxjs": "^6.2.1"
   }
 }
